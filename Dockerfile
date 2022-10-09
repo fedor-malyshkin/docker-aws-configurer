@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-RUN apt-get update && apt -y --no-install-recommends install curl unzip wget gnupg software-properties-common ca-certificates python3
+RUN apt-get update && apt -y --no-install-recommends install curl unzip wget gnupg software-properties-common ca-certificates python3.8 python3-pip python3.8-venv
 # terraform (https://learn.hashicorp.com/tutorials/terraform/install-cli)
 RUN wget -O- https://apt.releases.hashicorp.com/gpg | \
     gpg --dearmor | \
