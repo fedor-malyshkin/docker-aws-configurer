@@ -1,0 +1,35 @@
+name: cd
+
+on:
+  push:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: login-to-docker-hub
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
+      - name: set-up-docker-buildx
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/setup-buildx-action@v1
+      - name: get-short-sha # https://github.community/t/substring-function/18401
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          id=$(echo ${{github.sha}} | cut -b-7)
+          echo "::set-output name=sha::sha-$id"
+        id: get-short-sha-id
+      - name: build-and-push-docker-image
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          file: Dockerfile
+          context: scripts
+          tags: |
+            ghcr.io/fedor-malyshkin/aws-docker-configurer:latest
+            ghcr.io/fedor-malyshkin/aws-docker-configurer:${{steps.get-short-sha-id.outputs.sha}}
